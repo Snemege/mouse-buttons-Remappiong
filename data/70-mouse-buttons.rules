@@ -1,0 +1,9 @@
+# Mouse Buttons
+# Giriş yapmış kullanıcının mouse olaylarını okuyabilmesi ve sanal tuş gönderebilmesi için.
+# Lets the logged-in user read mouse events and inject key presses.
+# Yalnızca fareler (ID_INPUT_MOUSE) için geçerlidir; klavyelere dokunmaz.
+# Only applies to mice (ID_INPUT_MOUSE); keyboards are not touched.
+SUBSYSTEM=="input", KERNEL=="event*", ENV{ID_INPUT_MOUSE}=="1", TAG+="uaccess"
+# Sanal klavye/fare göndermek için (çoğu dağıtımda zaten vardır)
+# For sending virtual key presses (already present on most distributions)
+SUBSYSTEM=="misc", KERNEL=="uinput", OPTIONS+="static_node=uinput", TAG+="uaccess"

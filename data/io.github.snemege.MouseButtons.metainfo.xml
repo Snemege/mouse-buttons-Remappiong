@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.snemege.MouseButtons</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>Mouse Buttons</name>
+  <name xml:lang="tr">Fare Tuşları</name>
+  <summary>Assign actions to your mouse buttons</summary>
+  <summary xml:lang="tr">Mouse tuşlarına işlev atayın</summary>
+  <description>
+    <p>Assign actions to your mouse buttons on Linux (GNOME, Wayland). For example, switch between workspaces with the side buttons, launch apps or send keyboard shortcuts. A simple alternative to X-Mouse Button Control from Windows.</p>
+    <p>Features: a live button test that lights up the button you press, custom shortcuts, launching installed apps, running commands, English and Turkish interface, and automatic recovery when a mouse is unplugged or a KVM switch changes computers.</p>
+    <p xml:lang="tr">Linux'ta (GNOME, Wayland) mouse tuşlarına istediğiniz işi atayın. Örneğin yan tuşlarla sanal masaüstleri arasında geçin, uygulama açın ya da kısayol gönderin. Windows'taki X-Mouse Button Control'e sade bir alternatif.</p>
+  </description>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Assign actions to mouse buttons, with a live button test</caption>
+      <image type="source" width="640" height="820">https://raw.githubusercontent.com/Snemege/mouse-buttons/main/data/screenshots/main.png</image>
+    </screenshot>
+  </screenshots>
+  <launchable type="desktop-id">io.github.snemege.MouseButtons.desktop</launchable>
+  <url type="homepage">https://github.com/Snemege/mouse-buttons</url>
+  <url type="bugtracker">https://github.com/Snemege/mouse-buttons/issues</url>
+  <developer id="io.github.snemege">
+    <name>Snemege</name>
+  </developer>
+  <provides>
+    <binary>mouse-buttons</binary>
+  </provides>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.1.0" date="2026-09-21"/>
+  </releases>
+</component>

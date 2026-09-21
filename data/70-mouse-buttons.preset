@@ -1,0 +1,3 @@
+# Mouse Buttons: arka plan servisi kurulumda kullanıcılar için kendiliğinden etkinleşir
+# Enable the background service for users when the package is installed
+enable mouse-buttons.service

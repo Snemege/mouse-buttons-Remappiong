@@ -1,0 +1,10 @@
+[Unit]
+Description=Mouse Buttons (mouse button remapping service)
+
+[Service]
+ExecStart=@PYTHON@ @SCRIPT@ --servis
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Mouse Buttons
+Name[tr]=Fare Tuşları
+Comment=Assign actions to mouse buttons (switch workspaces, launch apps and more)
+Comment[tr]=Mouse tuşlarına işlev ata (sanal masaüstü değiştirme, uygulama açma vb.)
+Keywords=mouse;fare;tuş;yan tuş;sanal masaüstü;button;side button;workspace;remap;
+Exec=@PYTHON@ @SCRIPT@
+Icon=io.github.snemege.MouseButtons
+Terminal=false
+StartupWMClass=io.github.snemege.MouseButtons
+Categories=Settings;HardwareSettings;

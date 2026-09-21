@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+# Claude oturumları arası devam dosyası (kişisel notlar; herkese açık depoya girmez)
+DURUM.md
