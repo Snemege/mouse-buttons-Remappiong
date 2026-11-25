@@ -8,7 +8,7 @@ Assign actions to your mouse buttons on Linux (GNOME, Wayland). A simple alterna
 
 ## Features
 
-- Assign to any mouse button: previous/next **workspace**, **launch an app** (pick from a searchable list of installed apps), send a custom **shortcut**, run a **command**, back/forward, copy/paste, disable the button, and more.
+- Assign to any mouse button: previous/next **workspace**, **launch an app** (pick from a searchable list of installed apps), send a custom **shortcut**, run a **command**, back/forward, copy/paste, play/pause, **volume up/down/mute** (e.g. on the scroll wheel), disable the button, and more.
 - **Live button test:** press a mouse button and the matching tile lights up in the window, showing which button it is and what it will do. While the pointer is over that section, buttons only light up and **their actions do not run**, so you can identify buttons safely.
 - Changes are saved instantly; the background service starts automatically at every login.
 - **English and Turkish interface**, chosen from your system language; switch it any time in the app (*Language / Dil*).

@@ -8,7 +8,7 @@ Linux'ta (GNOME, Wayland) mouse tuşlarına istediğiniz işi atayın. Windows't
 
 ## Özellikler
 
-- Mouse tuşlarına şu işleri atayın: önceki/sonraki **sanal masaüstü**, **uygulama aç** (kurulu uygulamalar arasından arayarak seçin), özel **kısayol** gönderme, **komut** çalıştırma, geri/ileri, kopyala/yapıştır, tuşu devre dışı bırakma ve daha fazlası.
+- Mouse tuşlarına şu işleri atayın: önceki/sonraki **sanal masaüstü**, **uygulama aç** (kurulu uygulamalar arasından arayarak seçin), özel **kısayol** gönderme, **komut** çalıştırma, geri/ileri, kopyala/yapıştır, oynat/duraklat, **ses açma/kısma/kapatma** (ör. tekerlekte), tuşu devre dışı bırakma ve daha fazlası.
 - **Canlı tuş testi:** Mouse'a bastığınızda pencerede ilgili tuş renkle yanar; hangi tuşun hangi koda karşılık geldiğini ve ne yapacağını görürsünüz. İmleç bu bölümün üzerindeyken tuşlar yalnızca renkle yanar, **eylemler çalışmaz**; böylece tuşları güvenle tanıyabilirsiniz.
 - Ayarlar anında kaydolur; arka plan servisi her oturum açışta kendiliğinden başlar.
 - **Türkçe ve İngilizce arayüz:** sistem dilinize göre seçilir, uygulamadan istediğiniz zaman değiştirebilirsiniz (*Language / Dil*).
