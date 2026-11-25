@@ -54,6 +54,16 @@ EN = {
     "Ek tuş 1 (BTN_FORWARD)": "Extra button 1 (BTN_FORWARD)",
     "Ek tuş 2 (BTN_BACK)": "Extra button 2 (BTN_BACK)",
     "Ek tuş 3 (BTN_TASK)": "Extra button 3 (BTN_TASK)",
+    "Tekerlek yukarı": "Wheel up", "Tekerlek aşağı": "Wheel down",
+    "Tekerlek sola (yatay)": "Wheel left (horizontal)",
+    "Tekerlek sağa (yatay)": "Wheel right (horizontal)",
+    "Tek. ↑": "Wheel ↑", "Tek. ↓": "Wheel ↓", "Tek. ←": "Wheel ←", "Tek. →": "Wheel →",
+    "Yeni tuş ekle": "Add a new button",
+    "Listede olmayan bir tuşu (ör. tekerleğin üstündeki tuşlar) eklemek için “Öğren”e basıp o tuşa basın.":
+        "To add a button that is not listed (e.g. the keys above the wheel), press “Learn”, then press that button.",
+    "Öğren": "Learn",
+    "Eklemek istediğiniz tuşa basın…": "Press the button you want to add…",
+    "Eklendi: {}": "Added: {}",
     "Sol tık": "Left click", "Sağ tık": "Right click", "Orta tuş": "Middle",
     "Sol yan": "Left side", "Sağ yan": "Right side",
     "Ek 1": "Extra 1", "Ek 2": "Extra 2", "Ek 3": "Extra 3",
@@ -69,6 +79,8 @@ EN = {
     "Yapıştır (Ctrl+V)": "Paste (Ctrl+V)",
     "Oynat / duraklat": "Play / pause",
     "Sesi kapat / aç": "Mute / unmute",
+    "Sesi aç": "Volume up",
+    "Sesi kıs": "Volume down",
     "Tuşu devre dışı bırak": "Disable button",
     "Özel kısayol…": "Custom shortcut…",
     "Uygulama aç…": "Launch app…",
@@ -100,8 +112,8 @@ EN = {
     "Komut (örn. firefox)": "Command (e.g. firefox)",
     "Uygulama": "Application",
     "Bir uygulama seçin…": "Choose an application…",
-    "Tanınmayan tuş: kod {kod} ({ad}). Bu kodu listeye eklemek gerekir.":
-        "Unrecognised button: code {kod} ({ad}). This code needs to be added to the list.",
+    "Tanınmayan tuş: kod {kod} ({ad}). “Yeni tuş ekle” bölümünden listeye ekleyebilirsiniz.":
+        "Unrecognised button: code {kod} ({ad}). You can add it from the “Add a new button” section.",
     "normal çalışır (dokunulmuyor)": "works normally (left untouched)",
     "kısayol gönderir: {}": "sends shortcut: {}",
     "uygulama açar: {}": "launches app: {}",
@@ -152,6 +164,29 @@ def set_language(choice):
     LANGUAGE = system_language() if choice not in ("tr", "en") else choice
 
 
+# Tekerlek yönleri gerçek tuş değildir (REL olayı); ayar dosyasında bu adlarla, içeride bu
+# sahte kodlarla tutulur ki tuşlarla aynı biçimde atanabilsin.
+WHEEL_CODES = {"WHEEL_UP": 0x10001, "WHEEL_DOWN": 0x10002,
+               "WHEEL_LEFT": 0x10003, "WHEEL_RIGHT": 0x10004}
+# (REL olay kodu, işaret) -> yön adı; hi-res olaylar da aynı yönlere bağlanır
+WHEEL_REL = {(e.REL_WHEEL, 1): "WHEEL_UP", (e.REL_WHEEL, -1): "WHEEL_DOWN",
+             (e.REL_HWHEEL, 1): "WHEEL_RIGHT", (e.REL_HWHEEL, -1): "WHEEL_LEFT",
+             (e.REL_WHEEL_HI_RES, 1): "WHEEL_UP", (e.REL_WHEEL_HI_RES, -1): "WHEEL_DOWN",
+             (e.REL_HWHEEL_HI_RES, 1): "WHEEL_RIGHT", (e.REL_HWHEEL_HI_RES, -1): "WHEEL_LEFT"}
+
+
+def code_of(name):
+    """Ayar adı ('BTN_SIDE', 'KEY_PLAYPAUSE', 'WHEEL_UP') -> sayısal kod (bilinmiyorsa None)."""
+    code = WHEEL_CODES.get(name)
+    return code if code is not None else getattr(e, name, None)
+
+
+def name_of(code):
+    """Sayısal tuş kodu -> evdev adı (yoksa None)."""
+    ad = e.KEY.get(code) or e.BTN.get(code)
+    return ad[0] if isinstance(ad, list) else ad
+
+
 # (evdev adı, ekranda görünen ad)
 BUTTONS = [
     ("BTN_SIDE", "Sol yan tuş (geri tuşu)"),
@@ -160,6 +195,10 @@ BUTTONS = [
     ("BTN_FORWARD", "Ek tuş 1 (BTN_FORWARD)"),
     ("BTN_BACK", "Ek tuş 2 (BTN_BACK)"),
     ("BTN_TASK", "Ek tuş 3 (BTN_TASK)"),
+    ("WHEEL_UP", "Tekerlek yukarı"),
+    ("WHEEL_DOWN", "Tekerlek aşağı"),
+    ("WHEEL_LEFT", "Tekerlek sola (yatay)"),
+    ("WHEEL_RIGHT", "Tekerlek sağa (yatay)"),
 ]
 
 # (kimlik, ekranda görünen ad, gönderilecek kısayol)
@@ -175,6 +214,8 @@ ACTIONS = [
     ("paste", "Yapıştır (Ctrl+V)", "ctrl+v"),
     ("playpause", "Oynat / duraklat", "playpause"),
     ("mute", "Sesi kapat / aç", "mute"),
+    ("volume_up", "Sesi aç", "volumeup"),
+    ("volume_down", "Sesi kıs", "volumedown"),
     ("disabled", "Tuşu devre dışı bırak", ""),
     ("keys", "Özel kısayol…", None),
     ("app", "Uygulama aç…", None),
@@ -275,8 +316,10 @@ def find_desktop_file(desktop_id):
 
 
 def is_mouse(dev):
+    """Fare mi? Bazı fareler ek tuşlarını ve yatay tekerleği ayrı bir 'klavye' arayüzünden
+    gönderir (BTN_LEFT yok ama göreli eksen + tuşlar var); onlar da sayılır."""
     caps = dev.capabilities()
-    return e.EV_REL in caps and e.BTN_LEFT in caps.get(e.EV_KEY, [])
+    return e.EV_REL in caps and bool(caps.get(e.EV_KEY))
 
 
 class Engine:
@@ -324,7 +367,7 @@ class Engine:
         self.mtime = m
         new = {}
         for name, act in data.items():
-            code = getattr(e, name, None)
+            code = code_of(name)
             if isinstance(code, int) and isinstance(act, dict) and act.get("action") not in (None, "default"):
                 new[code] = act
         self.map = new
@@ -384,6 +427,18 @@ class Engine:
             self.devices[dev.path] = dev.name
             log(f"{dev.name}: grabbed")
             async for ev in dev.async_read_loop():
+                if ev.type == e.EV_REL and ev.value:
+                    yon = WHEEL_REL.get((ev.code, 1 if ev.value > 0 else -1))
+                    if yon is not None:
+                        kod = WHEEL_CODES[yon]
+                        act = self.map.get(kod)
+                        if ev.code in (e.REL_WHEEL, e.REL_HWHEEL):  # çentik başına bir kez
+                            self.bildir(kod, 1)
+                            self.bildir(kod, 0)
+                            if act is not None and not self.test_modu():
+                                self.spawn(self.perform(act))
+                        if act is not None:
+                            continue  # atanmış yönün kaydırması uygulamaya gitmesin
                 if ev.type == e.EV_KEY:
                     self.bildir(ev.code, ev.value)
                     act = self.map.get(ev.code)
@@ -494,6 +549,8 @@ def run_gui():
         ("BTN_LEFT", "Sol tık"), ("BTN_RIGHT", "Sağ tık"), ("BTN_MIDDLE", "Orta tuş"),
         ("BTN_SIDE", "Sol yan"), ("BTN_EXTRA", "Sağ yan"),
         ("BTN_FORWARD", "Ek 1"), ("BTN_BACK", "Ek 2"), ("BTN_TASK", "Ek 3"),
+        ("WHEEL_UP", "Tek. ↑"), ("WHEEL_DOWN", "Tek. ↓"),
+        ("WHEEL_LEFT", "Tek. ←"), ("WHEEL_RIGHT", "Tek. →"),
     ]
     ACTION_LABELS = {a[0]: a[1] for a in ACTIONS}
     TEST_ACIKLAMA = ("Fare imlecini bu bölüme getirip tuşlara basın: tuşlar yalnızca renkle yanar, "
@@ -545,8 +602,13 @@ def run_gui():
             self.satirlar = {}   # tuş kodu -> ayar satırı (basınca renklenir)
             self.etiketler = {}  # tuş kodu -> test kutucuğu
             self.basma_no = {}   # tuş kodu -> son basış sayacı (ışığı geç söndürmek için)
-            self.kod_adi = {getattr(e, n): n for n, _ in TILES}
-            self.kisa_ad = {getattr(e, n): T(t) for n, t in TILES}
+            self.ogrenme = False  # "Öğren" modu: basılan sıradaki tuş listeye eklenir
+            self.ekstra = [n for n in load_settings().get("extra_buttons", []) if code_of(n) is not None]
+            self.kod_adi = {code_of(n): n for n, _ in TILES}
+            self.kisa_ad = {code_of(n): T(t) for n, t in TILES}
+            for n in self.ekstra:  # kullanıcının eklediği tuşlar
+                self.kod_adi[code_of(n)] = n
+                self.kisa_ad[code_of(n)] = n
 
             view = Adw.ToolbarView()
             view.add_top_bar(Adw.HeaderBar())
@@ -571,7 +633,7 @@ def run_gui():
                 lbl = Gtk.Label(label=T(text), hexpand=True)
                 lbl.add_css_class("tus-etiket")
                 flow.append(lbl)
-                self.etiketler[getattr(e, name)] = lbl
+                self.etiketler[code_of(name)] = lbl
             test.add(flow)
             self.son_row = Adw.ActionRow(title=T("Son algılanan tuş"),
                                          subtitle=T("Henüz bir tuşa basılmadı"))
@@ -583,9 +645,22 @@ def run_gui():
             grup = Adw.PreferencesGroup(
                 title=T("Mouse tuşları"),
                 description=T("Her tuşa ne yapacağını seçin. Değişiklikler anında geçerli olur."))
+            self.tus_grup = grup
             for code, label in BUTTONS:
                 self.satir_ekle(grup, code, T(label))
+            for code in self.ekstra:
+                self.satir_ekle(grup, code, code)
             page.add(grup)
+
+            yeni = Adw.PreferencesGroup(
+                title=T("Yeni tuş ekle"),
+                description=T("Listede olmayan bir tuşu (ör. tekerleğin üstündeki tuşlar) eklemek için “Öğren”e basıp o tuşa basın."))
+            self.ogren_row = Adw.ActionRow(title=T("Yeni tuş ekle"))
+            self.ogren_btn = Gtk.Button(label=T("Öğren"), valign=Gtk.Align.CENTER)
+            self.ogren_btn.connect("clicked", self.ogrenmeyi_baslat)
+            self.ogren_row.add_suffix(self.ogren_btn)
+            yeni.add(self.ogren_row)
+            page.add(yeni)
 
             durum = Adw.PreferencesGroup(title=T("Durum"))
             self.servis_row = Adw.ActionRow(title=T("Arka plan servisi"))
@@ -709,7 +784,29 @@ def run_gui():
                 if widget:
                     (widget.add_css_class if yansin else widget.remove_css_class)(sinif)
 
+        def ogrenmeyi_baslat(self, *_):
+            self.ogrenme = True
+            self.ogren_row.set_subtitle(T("Eklemek istediğiniz tuşa basın…"))
+
+        def tus_ogren(self, code):
+            """Öğrenme modunda basılan, listede olmayan tuşu kalıcı olarak listeye ekler."""
+            ad = name_of(code)
+            if ad is None or code_of(ad) != code:
+                return
+            self.ogrenme = False
+            self.ekstra.append(ad)
+            ayar = load_settings()
+            ayar["extra_buttons"] = self.ekstra
+            save_settings(ayar)
+            self.kod_adi[code] = ad
+            self.kisa_ad[code] = ad
+            self.satir_ekle(self.tus_grup, ad, ad)
+            self.ogren_row.set_subtitle(T("Eklendi: {}").format(ad))
+
         def tus_isle(self, code, value):
+            if (self.ogrenme and value == 1 and code not in self.kod_adi
+                    and code not in (e.BTN_LEFT, e.BTN_RIGHT)):
+                self.tus_ogren(code)
             if value == 1:
                 self.basma_no[code] = self.basma_no.get(code, 0) + 1
                 self.isik(code, True)
@@ -734,7 +831,7 @@ def run_gui():
                 evdev_adi = e.BTN.get(code) or e.KEY.get(code) or "?"
                 if isinstance(evdev_adi, list):
                     evdev_adi = evdev_adi[0]
-                return T("Tanınmayan tuş: kod {kod} ({ad}). Bu kodu listeye eklemek gerekir.").format(
+                return T("Tanınmayan tuş: kod {kod} ({ad}). “Yeni tuş ekle” bölümünden listeye ekleyebilirsiniz.").format(
                     kod=code, ad=evdev_adi)
             kayit = self.config.get(ad, {})
             aid = kayit.get("action", "default")
@@ -756,7 +853,7 @@ def run_gui():
             kayit = self.config.get(code, {})
             ids = [a[0] for a in ACTIONS]
             combo = Adw.ComboRow(title=label, subtitle=code)
-            self.satirlar[getattr(e, code)] = combo
+            self.satirlar[code_of(code)] = combo
             combo.set_model(Gtk.StringList.new([T(a[1]) for a in ACTIONS]))
             combo.set_selected(ids.index(kayit["action"]) if kayit.get("action") in ids else 0)
             entry = Adw.EntryRow()
